@@ -1,0 +1,58 @@
+nmap -sV {ipaddress} -Pn
+nmap -p- --min-rate=1000 -sV {ip}
+'
+PORT 21 - FTP
+    ftp {ipaddress}
+        login with anonymous, anon123
+        ls to list files.
+        get flag.txt to download
+
+PORT 23 - TELNET
+    telnet {ipaddress}
+        login via typical users (admin, administrator, root)
+        use ls, cd to navigate. cat to show .txt files
+
+PORT 80 - HTTP
+    sudo gobuster dir -w /usr/share/wordlists/dirb/common.txt -u {ipaddress} initiate dir busting attack using wordlist to find hidden directories
+    login via basic user/pass (admin,admin) ect..
+
+    when a page has a login page can attempt SQL Injection using
+        Username = admin'#
+        Password = abc123 or anything
+
+PORT 445 - SMB
+    smbclient - L {ipaddress} to list shares
+    smbclient \\\\{ip}\\{share} to attempt to connect
+        once connected to share use ls,cd,get to nav and download
+
+PORT 873 - RSYNC
+    rsync --list-only {target_IP}:: use this to interact with remote and list shares
+        include shares in initial command to navigate. ie..  rsync --list-only {target_IP}::public
+        to download file remove list-only from command and add file name and list desitation file name. ie.. rsync {target_IP}::public/flag.txt flag.txt
+
+PORT 3306 - MYSQL
+    mysql -h {ipaddress} -u root ## attempt to connect to host as root
+        show databases; lists all databases
+        use {database name}; selects database
+        show tables; lists tables in database
+        select * from {table}; lists contents of table
+
+PORT 3389 - RDP
+    xfreerdp /v:{ipaddress} /cert:ignore /u:Administrator to attempt to connect to rdp host ignoring certs and logging in as admin
+        use blank password or usuals
+
+
+PORT 6379 - REDIS
+    redis-cli -h {ipaddress}
+
+        in #Keyspace db0: has keys=4. that is the data
+        "select 0" to select db0
+        "keys *" to list the keys
+        "get {key name}" to show the key
+
+PORT 27017 - MONGODB
+    ./mongo mongodb://{target_IP}:27017 run in folder with mongodb/bin to attempt to connect to db
+        show dbs; - to show databases
+        use {database name}; to select DB
+        show collections; - to list info in DB
+        db.flag.find().pretty(); to dump the contents of th DM
