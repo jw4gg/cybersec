@@ -36,6 +36,7 @@ PORT 80 - HTTP
             the Responder server should receive a encrypted responce from the webpage, save the responce to a hash.txt file "echo "responder responce" > hash.txt"
             pass the hash to "john" and crack the password "john -w=/usr/share/wordlists/rockyou.txt hash.txt"
             use Evil-WinRM to connect "evil-winrm -i {ipaddress} -u administrator -p badminton"
+            navigate using powershell commands. get-content to read txt files
 
 
 PORT 445 - SMB
