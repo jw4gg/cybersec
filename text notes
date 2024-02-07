@@ -2,6 +2,8 @@ nmap -sV {ipaddress} -Pn
 nmap -p- --min-rate=1000 -sV {ip}
 
 PORT 21 - FTP
+    running nmap with -sC will check to see if anon ftp login is allowed
+
     ftp {ipaddress}
         login with anonymous, anon123
         ls to list files.
@@ -13,8 +15,12 @@ PORT 23 - TELNET
         use ls, cd to navigate. cat to show .txt files
 
 PORT 80 - HTTP
-    sudo gobuster dir -w /usr/share/wordlists/dirb/common.txt -u {ipaddress} initiate dir busting attack using wordlist to find hidden directories
+    gobuster dir -w /usr/share/wordlists/dirb/common.txt -u {ipaddress} initiate dir busting attack using wordlist to find hidden directories
     login via basic user/pass (admin,admin) ect..
+
+    gobuster dir -u http://{ipaddress}/ -w /usr/share/wordlist/dirbuster/directory-list-2.3-small.txt -x php,html
+    dir busting attack looking for php and html pages as these are most common
+        login.php can be brute forced or use credentials downloaded from ftp ect..
 
     when a page has a login page can attempt SQL Injection using
         Username = admin'#
