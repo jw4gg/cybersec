@@ -1,6 +1,6 @@
 nmap -sV {ipaddress} -Pn
 nmap -p- --min-rate=1000 -sV {ip}
-'
+
 PORT 21 - FTP
     ftp {ipaddress}
         login with anonymous, anon123
