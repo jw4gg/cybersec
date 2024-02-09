@@ -147,9 +147,15 @@ PORT 80 - HTTP also check PORT 8080 below
 
 
 PORT 445 - SMB
-    smbclient - L {ipaddress} to list shares
-    smbclient \\\\{ip}\\{share} to attempt to connect
+    smbclient - L {ipaddress} -U Administrator to list shares, try leaving password blank or default easy passwords
+    smbclient \\\\{ip}\\{share} to attempt to connect; this has worked well in the past, better than psexec.py
         once connected to share use ls,cd,get to nav and download
+
+    if only access to one share and not the others use Impacket:
+        run psexec.py administrator@{targetIP}
+            password will be the same as used for smbclient, none or whatever
+            navigation with dir, cd. issues reading or getting files.
+            smbclient \\\\ip\\share seems to work better
 
 PORT 873 - RSYNC
     rsync --list-only {target_IP}:: use this to interact with remote and list shares
