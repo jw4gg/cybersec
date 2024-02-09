@@ -9,6 +9,19 @@ PORT 21 - FTP
         ls to list files.
         get flag.txt to download
 
+PORT 22 - SSH
+    if able to find credentials and login via SSH check the following
+        Socket Statistics:  ss -tln     and     ss -tl
+            checks which ports a listening locally
+            in my example PORT 5432 was running PostgreSQL
+                create a ssh tunnel from a port ex:1234 to the SQL 5432 port
+                    ssh -L 1234:localhost:5432 {target_user}@{target_IP}
+                verify using ss -tlpn
+                    should see a localhost process using the port ex: 127.0.0.1:1234 
+                back on the local system connect via psql using the following:
+                    psql -U {target_user} -h localhost -p 1234
+                navigate PSQL using \l to list databases \c to connect to one, \dt to dump contents and SELECT * FROM "name" to read.
+
 PORT 23 - TELNET
     telnet {ipaddress}
         login via typical users (admin, administrator, root)
@@ -107,6 +120,8 @@ PORT 80 - HTTP
         look like the following %257b%257b%2523%2577%256... copy that into the burp decoder and encode as URL. Paste that into
         the burp repeater and send to the site. if get a ReferenceError: require is not defined try other payloads to get [object process] 
         has been included
+
+        note: in burp ctrl+shift+U decodes URL in the repeater tool. you can input URL code and use the shortcut then send it.
 
         once a payload is working send inputs to the server using the working format in inputing commands into the mainModule section:
 
