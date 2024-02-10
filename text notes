@@ -1,6 +1,11 @@
 nmap -sV {ipaddress} -Pn
 nmap -p- --min-rate=1000 -sV {ip}
 
+searchsploit {version}
+
+msfconsole metaspliot
+search {version}
+
 PORT 21 - FTP
     running nmap with -sC will check to see if anon ftp login is allowed
 
